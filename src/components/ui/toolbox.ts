@@ -3,7 +3,13 @@ import { BlockToolAPI } from '../block';
 import Shortcuts from '../utils/shortcuts';
 import BlockTool from '../tools/block';
 import ToolsCollection from '../tools/collection';
-import { API, BlockToolData, ToolboxConfigEntry, PopoverItem, BlockAPI } from '../../../types';
+import {
+  API,
+  BlockToolData,
+  ToolboxConfigEntry,
+  PopoverItem,
+  BlockAPI
+} from '../../../types';
 import EventsDispatcher from '../utils/events';
 import Popover, { PopoverEvent } from '../utils/popover';
 import I18n from '../i18n';
@@ -42,7 +48,7 @@ export interface ToolboxEventMap {
   [ToolboxEvent.Opened]: undefined;
   [ToolboxEvent.Closed]: undefined;
   [ToolboxEvent.BlockAdded]: {
-    block: BlockAPI
+    block: BlockAPI;
   };
 }
 
@@ -122,7 +128,15 @@ export default class Toolbox extends EventsDispatcher<ToolboxEventMap> {
    * @param options.api - Editor API methods
    * @param options.tools - Tools available to check whether some of them should be displayed at the Toolbox or not
    */
-  constructor({ api, tools, i18nLabels }: {api: API; tools: ToolsCollection<BlockTool>; i18nLabels: Record<ToolboxTextLabelsKeys, string>}) {
+  constructor({
+    api,
+    tools,
+    i18nLabels,
+  }: {
+    api: API;
+    tools: ToolsCollection<BlockTool>;
+    i18nLabels: Record<ToolboxTextLabelsKeys, string>;
+  }) {
     super();
 
     this.api = api;
@@ -185,7 +199,10 @@ export default class Toolbox extends EventsDispatcher<ToolboxEventMap> {
    * @param toolName - tool type to be activated
    * @param blockDataOverrides - Block data predefined by the activated Toolbox item
    */
-  public toolButtonActivated(toolName: string, blockDataOverrides: BlockToolData): void {
+  public toolButtonActivated(
+    toolName: string,
+    blockDataOverrides: BlockToolData
+  ): void {
     this.insertNewBlock(toolName, blockDataOverrides);
   }
 
@@ -256,10 +273,16 @@ export default class Toolbox extends EventsDispatcher<ToolboxEventMap> {
     /**
      * Maps tool data to popover item structure
      */
-    const toPopoverItem = (toolboxItem: ToolboxConfigEntry, tool: BlockTool): PopoverItem => {
+    const toPopoverItem = (
+      toolboxItem: ToolboxConfigEntry,
+      tool: BlockTool
+    ): PopoverItem => {
       return {
         icon: toolboxItem.icon,
-        title: I18n.t(I18nInternalNS.toolNames, toolboxItem.title || _.capitalize(tool.name)),
+        title: I18n.t(
+          I18nInternalNS.toolNames,
+          toolboxItem.title || _.capitalize(tool.name)
+        ),
         name: tool.name,
         onActivate: (): void => {
           this.toolButtonActivated(tool.name, toolboxItem.data);
@@ -268,18 +291,17 @@ export default class Toolbox extends EventsDispatcher<ToolboxEventMap> {
       };
     };
 
-    return this.toolsToBeDisplayed
-      .reduce<PopoverItem[]>((result, tool) => {
-        if (Array.isArray(tool.toolbox)) {
-          tool.toolbox.forEach(item => {
-            result.push(toPopoverItem(item, tool));
-          });
-        } else if (tool.toolbox !== undefined)  {
-          result.push(toPopoverItem(tool.toolbox, tool));
-        }
+    return this.toolsToBeDisplayed.reduce<PopoverItem[]>((result, tool) => {
+      if (Array.isArray(tool.toolbox)) {
+        tool.toolbox.forEach((item) => {
+          result.push(toPopoverItem(item, tool));
+        });
+      } else if (tool.toolbox !== undefined) {
+        result.push(toPopoverItem(tool.toolbox, tool));
+      }
 
-        return result;
-      }, []);
+      return result;
+    }, []);
   }
 
   /**
@@ -353,7 +375,10 @@ export default class Toolbox extends EventsDispatcher<ToolboxEventMap> {
    * @param {string} toolName - Tool name
    * @param blockDataOverrides - predefined Block data
    */
-  private async insertNewBlock(toolName: string, blockDataOverrides?: BlockToolData): Promise<void> {
+  private async insertNewBlock(
+    toolName: string,
+    blockDataOverrides?: BlockToolData
+  ): Promise<void> {
     const currentBlockIndex = this.api.blocks.getCurrentBlockIndex();
     const currentBlock = this.api.blocks.getBlockByIndex(currentBlockIndex);
 
@@ -361,11 +386,29 @@ export default class Toolbox extends EventsDispatcher<ToolboxEventMap> {
       return;
     }
 
+    let items = 0;
+
+    /**
+     * if current block is toggle and closed, put new block after its end
+     */
+    if (
+      currentBlock.name === 'toggle' &&
+      currentBlock.holder.getAttribute('status') === 'closed'
+    ) {
+      const savedData = await currentBlock.save();
+
+      if (savedData && 'data' in savedData && 'items' in savedData.data) {
+        items = savedData.data.items;
+      }
+    }
+
     /**
      * On mobile version, we see the Plus Button even near non-empty blocks,
      * so if current block is not empty, add the new block below the current
      */
-    const index = currentBlock.isEmpty ? currentBlockIndex : currentBlockIndex + 1;
+    const index = currentBlock.isEmpty
+      ? currentBlockIndex
+      : currentBlockIndex + 1 + items;
 
     let blockData;
 

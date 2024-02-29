@@ -526,7 +526,7 @@ export default class UI extends Module<UINodes> {
    *
    * @param {KeyboardEvent} event - keyboard event
    */
-  private enterPressed(event: KeyboardEvent): void {
+  private async enterPressed(event: KeyboardEvent): Promise<void> {
     const { BlockManager, BlockSelection } = this.Editor;
     const hasPointerToBlock = BlockManager.currentBlockIndex >= 0;
 
@@ -558,10 +558,29 @@ export default class UI extends Module<UINodes> {
      * We can create a new block
      */
     if (!this.someToolbarOpened && hasPointerToBlock && (event.target as HTMLElement).tagName === 'BODY') {
-      /**
-       * Insert the default typed Block
-       */
-      const newBlock = this.Editor.BlockManager.insert();
+      const { currentBlock, currentBlockIndex } = this.Editor.BlockManager;
+      let newBlock: Block;
+
+      if (currentBlock.name === 'toggle') {
+        const data = await currentBlock.data;
+
+        if ('items' in data) {
+          const newIndex = currentBlockIndex + 1 + data.items;
+
+          newBlock = this.Editor.BlockManager.insert({
+            index: newIndex,
+          });
+        }
+      } else {
+        /**
+         * Insert the default typed Block
+         */
+        newBlock = this.Editor.BlockManager.insert();
+      }
+
+      if (!newBlock) {
+        return;
+      }
 
       this.Editor.Caret.setToBlock(newBlock);
 
