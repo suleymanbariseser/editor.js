@@ -571,7 +571,11 @@ export default class Block extends EventsDispatcher<BlockEvents> {
       .forEach(([name, tune]) => {
         if (_.isFunction(tune.save)) {
           try {
-            tunesData[name] = tune.save();
+            const newTune = tune.save();
+
+            if (newTune) {
+              tunesData[name] = newTune;
+            }
           } catch (e) {
             _.log(`Tune ${tune.constructor.name} save method throws an Error %o`, 'warn', e);
           }
