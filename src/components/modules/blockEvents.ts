@@ -1,12 +1,12 @@
 /**
  * Contains keyboard and mouse events bound on each Block by Block Manager
  */
-import Module from "../__module";
-import * as _ from "../utils";
-import SelectionUtils from "../selection";
-import Flipper from "../flipper";
-import type Block from "../block";
-import { areBlocksMergeable } from "../utils/blocks";
+import Module from '../__module';
+import * as _ from '../utils';
+import SelectionUtils from '../selection';
+import Flipper from '../flipper';
+import type Block from '../block';
+import { areBlocksMergeable } from '../utils/blocks';
 
 /**
  *
@@ -228,6 +228,46 @@ export default class BlockEvents extends Module {
   }
 
   /**
+   *
+   */
+  private handleSoftEnter(): void {
+    const currentBlock = this.Editor.BlockManager.currentBlock;
+    const extractedFragment =
+      this.Editor.Caret.extractFragmentFromCaretPosition();
+
+    const holder = currentBlock.holder;
+
+    const content = holder.getElementsByClassName(this.Editor.StylesAPI.classes.block)?.[0];
+
+    if (content && extractedFragment) {
+      const br = document.createElement('br');
+
+      // if extracted fragment is empty, add zero width space
+      // otherwise it will not be possible to focus on it
+      if (extractedFragment.textContent === '') {
+        extractedFragment.textContent = '\u200B';
+      }
+
+      content.appendChild(br);
+      content.appendChild(extractedFragment);
+
+      // focus on added fragment which is the beginning of the new line
+      const selection = window.getSelection();
+      const range = new Range();
+
+      selection?.removeAllRanges();
+      // put caret at the beginning of the new line
+      // using extractedFragment as a reference node
+      // does not work as expected so used br.nextSibling
+      range.selectNodeContents(br.nextSibling);
+      range.collapse(false);
+      range.setStart(br.nextSibling, 0);
+      selection?.addRange(range);
+      selection?.collapseToStart();
+    }
+  }
+
+  /**
    * ENTER pressed on block
    *
    * @param {KeyboardEvent} event - keydown
@@ -256,6 +296,9 @@ export default class BlockEvents extends Module {
      * Allow to create line breaks by Shift+Enter
      */
     if (event.shiftKey) {
+      event.preventDefault();
+      this.handleSoftEnter();
+
       return;
     }
 
@@ -629,14 +672,14 @@ export default class BlockEvents extends Module {
     const toolboxItemSelected =
         event.keyCode === _.keyCodes.ENTER &&
         this.Editor.Toolbar.toolbox.opened,
-      blockSettingsItemSelected =
+        blockSettingsItemSelected =
         event.keyCode === _.keyCodes.ENTER && this.Editor.BlockSettings.opened,
-      inlineToolbarItemSelected =
+        inlineToolbarItemSelected =
         event.keyCode === _.keyCodes.ENTER && this.Editor.InlineToolbar.opened,
-      conversionToolbarItemSelected =
+        conversionToolbarItemSelected =
         event.keyCode === _.keyCodes.ENTER &&
         this.Editor.ConversionToolbar.opened,
-      flippingToolbarItems = event.keyCode === _.keyCodes.TAB;
+        flippingToolbarItems = event.keyCode === _.keyCodes.TAB;
 
     /**
      * Do not close Toolbar in cases:
