@@ -2,17 +2,17 @@
  * Class Util
  */
 
-import { nanoid } from 'nanoid';
-import Dom from './dom';
+import { nanoid } from "nanoid";
+import Dom from "./dom";
 
 /**
  * Possible log levels
  */
 export enum LogLevels {
-  VERBOSE = 'VERBOSE',
-  INFO = 'INFO',
-  WARN = 'WARN',
-  ERROR = 'ERROR',
+  VERBOSE = "VERBOSE",
+  INFO = "INFO",
+  WARN = "WARN",
+  ERROR = "ERROR",
 }
 
 /**
@@ -55,6 +55,7 @@ export const keyCodes = {
   DOWN: 40,
   RIGHT: 39,
   DELETE: 46,
+  Z: 90,
   META: 91,
 };
 
@@ -81,27 +82,27 @@ export const mouseButtons = {
 function _log(
   labeled: boolean,
   msg: string,
-  type = 'log',
+  type = "log",
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   args?: any,
-  style = 'color: inherit'
+  style = "color: inherit"
 ): void {
-  if (!('console' in window) || !window.console[type]) {
+  if (!("console" in window) || !window.console[type]) {
     return;
   }
 
-  const isSimpleType = ['info', 'log', 'warn', 'error'].includes(type);
+  const isSimpleType = ["info", "log", "warn", "error"].includes(type);
   const argsToPass = [];
 
   switch (_log.logLevel) {
     case LogLevels.ERROR:
-      if (type !== 'error') {
+      if (type !== "error") {
         return;
       }
       break;
 
     case LogLevels.WARN:
-      if (!['error', 'warn'].includes(type)) {
+      if (!["error", "warn"].includes(type)) {
         return;
       }
       break;
@@ -181,7 +182,10 @@ export const logLabeled = _log.bind(window, true);
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function typeOf(object: any): string {
-  return Object.prototype.toString.call(object).match(/\s([a-zA-Z]+)/)[1].toLowerCase();
+  return Object.prototype.toString
+    .call(object)
+    .match(/\s([a-zA-Z]+)/)[1]
+    .toLowerCase();
 }
 
 /**
@@ -192,7 +196,7 @@ export function typeOf(object: any): string {
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isFunction(fn: any): fn is (...args: any[]) => any {
-  return typeOf(fn) === 'function' || typeOf(fn) === 'asyncfunction';
+  return typeOf(fn) === "function" || typeOf(fn) === "asyncfunction";
 }
 
 /**
@@ -203,7 +207,7 @@ export function isFunction(fn: any): fn is (...args: any[]) => any {
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isObject(v: any): v is object {
-  return typeOf(v) === 'object';
+  return typeOf(v) === "object";
 }
 
 /**
@@ -214,7 +218,7 @@ export function isObject(v: any): v is object {
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isString(v: any): v is string {
-  return typeOf(v) === 'string';
+  return typeOf(v) === "string";
 }
 
 /**
@@ -225,7 +229,7 @@ export function isString(v: any): v is string {
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isBoolean(v: any): v is boolean {
-  return typeOf(v) === 'boolean';
+  return typeOf(v) === "boolean";
 }
 
 /**
@@ -236,7 +240,7 @@ export function isBoolean(v: any): v is boolean {
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isNumber(v: any): v is number {
-  return typeOf(v) === 'number';
+  return typeOf(v) === "number";
 }
 
 /**
@@ -247,7 +251,7 @@ export function isNumber(v: any): v is number {
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isUndefined(v: any): v is undefined {
-  return typeOf(v) === 'undefined';
+  return typeOf(v) === "undefined";
 }
 
 /**
@@ -294,13 +298,16 @@ export function isPromise(object: any): object is Promise<any> {
  * @returns {boolean}
  */
 export function isPrintableKey(keyCode: number): boolean {
-  return (keyCode > 47 && keyCode < 58) || // number keys
-    keyCode === 32 || keyCode === 13 || // Space bar & return key(s)
+  return (
+    (keyCode > 47 && keyCode < 58) || // number keys
+    keyCode === 32 ||
+    keyCode === 13 || // Space bar & return key(s)
     keyCode === 229 || // processing key input for certain languages — Chinese, Japanese, etc.
     (keyCode > 64 && keyCode < 91) || // letter keys
     (keyCode > 95 && keyCode < 112) || // Numpad keys
     (keyCode > 185 && keyCode < 193) || // ;=,-./` (in order)
-    (keyCode > 218 && keyCode < 223); // [\]' (in order)
+    (keyCode > 218 && keyCode < 223)
+  ); // [\]' (in order)
 }
 /* eslint-enable @typescript-eslint/no-magic-numbers */
 
@@ -377,8 +384,8 @@ export function delay(method: (...args: any[]) => any, timeout: number) {
   return function (): void {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const context = this,
-        // eslint-disable-next-line prefer-rest-params
-        args = arguments;
+      // eslint-disable-next-line prefer-rest-params
+      args = arguments;
 
     window.setTimeout(() => method.apply(context, args), timeout);
   };
@@ -391,7 +398,7 @@ export function delay(method: (...args: any[]) => any, timeout: number) {
  * @returns {string}
  */
 export function getFileExtension(file: File): string {
-  return file.name.split('.').pop();
+  return file.name.split(".").pop();
 }
 
 /**
@@ -415,7 +422,11 @@ export function isValidMimeType(type: string): boolean {
  * @param {boolean} immediate - call now
  * @returns {Function}
  */
-export function debounce(func: (...args: unknown[]) => void, wait?: number, immediate?: boolean): () => void {
+export function debounce(
+  func: (...args: unknown[]) => void,
+  wait?: number,
+  immediate?: boolean
+): () => void {
   let timeout;
 
   return (...args: unknown[]): void => {
@@ -450,7 +461,11 @@ export function debounce(func: (...args: unknown[]) => void, wait?: number, imme
  *                  but if you'd like to disable the execution on the leading edge, pass
  *                  `{leading: false}`. To disable execution on the trailing edge, ditto.
  */
-export function throttle(func, wait, options: {leading?: boolean; trailing?: boolean} = undefined): () => void {
+export function throttle(
+  func,
+  wait,
+  options: { leading?: boolean; trailing?: boolean } = undefined
+): () => void {
   let context, args, result;
   let timeout = null;
   let previous = 0;
@@ -509,7 +524,7 @@ export function throttle(func, wait, options: {leading?: boolean; trailing?: boo
  * @param text - text to copy
  */
 export function copyTextToClipboard(text): void {
-  const el = Dom.make('div', 'codex-editor-clipboard', {
+  const el = Dom.make("div", "codex-editor-clipboard", {
     innerHTML: text,
   });
 
@@ -523,14 +538,14 @@ export function copyTextToClipboard(text): void {
   window.getSelection().removeAllRanges();
   selection.addRange(range);
 
-  document.execCommand('copy');
+  document.execCommand("copy");
   document.body.removeChild(el);
 }
 
 /**
  * Returns object with os name as key and boolean as value. Shows current user OS
  */
-export function getUserOS(): {[key: string]: boolean} {
+export function getUserOS(): { [key: string]: boolean } {
   const OS = {
     win: false,
     mac: false,
@@ -538,7 +553,9 @@ export function getUserOS(): {[key: string]: boolean} {
     linux: false,
   };
 
-  const userOS = Object.keys(OS).find((os: string) => window.navigator.appVersion.toLowerCase().indexOf(os) !== -1);
+  const userOS = Object.keys(OS).find(
+    (os: string) => window.navigator.appVersion.toLowerCase().indexOf(os) !== -1
+  );
 
   if (userOS) {
     OS[userOS] = true;
@@ -598,7 +615,8 @@ export function deepMerge<T extends object>(target, ...sources): T {
  * @see http://www.stucox.com/blog/you-cant-detect-a-touchscreen/
  * @returns {boolean}
  */
-export const isTouchSupported: boolean = 'ontouchstart' in document.documentElement;
+export const isTouchSupported: boolean =
+  "ontouchstart" in document.documentElement;
 
 /**
  * Make shortcut command more human-readable
@@ -609,22 +627,22 @@ export function beautifyShortcut(shortcut: string): string {
   const OS = getUserOS();
 
   shortcut = shortcut
-    .replace(/shift/gi, '⇧')
-    .replace(/backspace/gi, '⌫')
-    .replace(/enter/gi, '⏎')
-    .replace(/up/gi, '↑')
-    .replace(/left/gi, '→')
-    .replace(/down/gi, '↓')
-    .replace(/right/gi, '←')
-    .replace(/escape/gi, '⎋')
-    .replace(/insert/gi, 'Ins')
-    .replace(/delete/gi, '␡')
-    .replace(/\+/gi, ' + ');
+    .replace(/shift/gi, "⇧")
+    .replace(/backspace/gi, "⌫")
+    .replace(/enter/gi, "⏎")
+    .replace(/up/gi, "↑")
+    .replace(/left/gi, "→")
+    .replace(/down/gi, "↓")
+    .replace(/right/gi, "←")
+    .replace(/escape/gi, "⎋")
+    .replace(/insert/gi, "Ins")
+    .replace(/delete/gi, "␡")
+    .replace(/\+/gi, " + ");
 
   if (OS.mac) {
-    shortcut = shortcut.replace(/ctrl|cmd/gi, '⌘').replace(/alt/gi, '⌥');
+    shortcut = shortcut.replace(/ctrl|cmd/gi, "⌘").replace(/alt/gi, "⌥");
   } else {
-    shortcut = shortcut.replace(/cmd/gi, 'Ctrl').replace(/windows/gi, 'WIN');
+    shortcut = shortcut.replace(/cmd/gi, "Ctrl").replace(/windows/gi, "WIN");
   }
 
   return shortcut;
@@ -646,7 +664,7 @@ export function getValidUrl(url: string): string {
     // do nothing but handle below
   }
 
-  if (url.substring(0, 2) === '//') {
+  if (url.substring(0, 2) === "//") {
     return window.location.protocol + url;
   } else {
     return window.location.origin + url;
@@ -670,7 +688,7 @@ export function generateBlockId(): string {
  * @param {string} url - URL address to redirect
  */
 export function openTab(url: string): void {
-  window.open(url, '_blank');
+  window.open(url, "_blank");
 }
 
 /**
@@ -679,9 +697,9 @@ export function openTab(url: string): void {
  * @param {string} prefix - identifier prefix
  * @returns {string}
  */
-export function generateId(prefix = ''): string {
+export function generateId(prefix = ""): string {
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-  return `${prefix}${(Math.floor(Math.random() * 1e8)).toString(16)}`;
+  return `${prefix}${Math.floor(Math.random() * 1e8).toString(16)}`;
 }
 
 /**
@@ -691,11 +709,15 @@ export function generateId(prefix = ''): string {
  * @param oldProperty - deprecated property.
  * @param newProperty - the property that should be used instead.
  */
-export function deprecationAssert(condition: boolean, oldProperty: string, newProperty: string): void {
+export function deprecationAssert(
+  condition: boolean,
+  oldProperty: string,
+  newProperty: string
+): void {
   const message = `«${oldProperty}» is deprecated and will be removed in the next major release. Please use the «${newProperty}» instead.`;
 
   if (condition) {
-    logLabeled(message, 'warn');
+    logLabeled(message, "warn");
   }
 }
 
@@ -706,12 +728,16 @@ export function deprecationAssert(condition: boolean, oldProperty: string, newPr
  * @param propertyKey - method or accessor name
  * @param descriptor - property descriptor
  */
-export function cacheable<Target, Value, Arguments extends unknown[] = unknown[]>(
+export function cacheable<
+  Target,
+  Value,
+  Arguments extends unknown[] = unknown[]
+>(
   target: Target,
   propertyKey: string,
   descriptor: PropertyDescriptor
 ): PropertyDescriptor {
-  const propertyToOverride = descriptor.value ? 'value' : 'get';
+  const propertyToOverride = descriptor.value ? "value" : "get";
   const originalMethod = descriptor[propertyToOverride];
   const cacheKey = `#${propertyKey}Cache`;
 
@@ -736,7 +762,7 @@ export function cacheable<Target, Value, Arguments extends unknown[] = unknown[]
    *
    * @param value - value to set
    */
-  if (propertyToOverride === 'get' && descriptor.set) {
+  if (propertyToOverride === "get" && descriptor.set) {
     const originalSet = descriptor.set;
 
     descriptor.set = function (value: unknown): void {
@@ -765,11 +791,12 @@ export function isMobileScreen(): boolean {
  * True if current device runs iOS
  */
 export const isIosDevice =
-  typeof window !== 'undefined' &&
+  typeof window !== "undefined" &&
   window.navigator &&
   window.navigator.platform &&
   (/iP(ad|hone|od)/.test(window.navigator.platform) ||
-    (window.navigator.platform === 'MacIntel' && window.navigator.maxTouchPoints > 1));
+    (window.navigator.platform === "MacIntel" &&
+      window.navigator.maxTouchPoints > 1));
 
 /**
  * Compares two values with unknown type
