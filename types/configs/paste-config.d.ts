@@ -1,4 +1,4 @@
-import { SanitizerConfig } from './sanitizer-config';
+import { SanitizerConfig } from "./sanitizer-config";
 
 /**
  * Tool onPaste configuration object
@@ -22,14 +22,14 @@ interface PasteConfigSpecified {
    * Object of string patterns Tool can substitute.
    * Key is your internal key and value is RegExp
    *
-   * @type {{[key: string]: RegExp}}
+   * @type {{[key: string]: RegExp | { pattern: RegExp; isFull: boolean } }}
    */
-  patterns?: {[key: string]: RegExp};
+  patterns?: { [key: string]: RegExp | { pattern: RegExp; isFull: boolean } };
 
   /**
    * Object with arrays of extensions and MIME types Tool can substitute
    */
-  files?: {extensions?: string[], mimeTypes?: string[]};
+  files?: { extensions?: string[]; mimeTypes?: string[] };
 }
 
 /**
