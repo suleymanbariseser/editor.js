@@ -332,6 +332,7 @@ export default class Dom {
         case 'button':
         case 'image':
         case 'reset':
+        case 'number':
           result = false;
           break;
       }

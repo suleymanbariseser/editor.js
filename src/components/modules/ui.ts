@@ -352,7 +352,7 @@ export default class UI extends Module<UINodes> {
      */
     let blockHoveredEmitted;
 
-    this.readOnlyMutableListeners.on(this.nodes.redactor, 'mousemove', _.throttle((event: MouseEvent | TouchEvent) => {
+    this.readOnlyMutableListeners.on(this.nodes.redactor, 'mousemove', _.throttle(async (event: MouseEvent | TouchEvent) => {
       const hoveredBlock = (event.target as Element).closest('.ce-block');
 
       /**
@@ -370,10 +370,20 @@ export default class UI extends Module<UINodes> {
         return;
       }
 
+      const block = this.Editor.BlockManager.getBlockByChildNode(hoveredBlock);
+
+      if (block.tool.name === 'image' ) {
+        const data = await block.data;
+
+        if (data.float !== 'none') {
+          return;
+        }
+      }
+
       blockHoveredEmitted = hoveredBlock;
 
       this.eventsDispatcher.emit(BlockHovered, {
-        block: this.Editor.BlockManager.getBlockByChildNode(hoveredBlock),
+        block,
       });
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     }, 20), {
