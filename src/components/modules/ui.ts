@@ -375,7 +375,7 @@ export default class UI extends Module<UINodes> {
       if (block.tool.name === 'image' ) {
         const data = await block.data;
 
-        if (data.float !== 'none') {
+        if (data.float && data.float !== 'none') {
           return;
         }
       }
