@@ -239,6 +239,22 @@ export default class LinkInlineTool implements InlineTool {
   }
 
   /**
+   * @param event - mouse event
+   */
+  private handleClickOutside = (event: MouseEvent): void => {
+    const isInputClicked = this.nodes.input.contains(event.target as Node);
+    const isButtonClicked = this.nodes.button.contains(event.target as Node);
+
+    // detect if click was outside the input and outside the button
+    if (!isInputClicked && !isButtonClicked) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.enterPressed();
+      document.removeEventListener('mousedown', this.handleClickOutside);
+    }
+  };
+
+  /**
    * @param {boolean} needFocus - on link creation we need to focus input. On editing - nope.
    */
   private openActions(needFocus = false): void {
@@ -247,6 +263,7 @@ export default class LinkInlineTool implements InlineTool {
       this.nodes.input.focus();
     }
     this.inputOpened = true;
+    document.addEventListener('mousedown', this.handleClickOutside);
   }
 
   /**
@@ -256,6 +273,10 @@ export default class LinkInlineTool implements InlineTool {
    *                                        on toggle-clicks on the icon of opened Toolbar
    */
   private closeActions(clearSavedSelection = true): void {
+    if (this.inputOpened) {
+      document.removeEventListener('mousedown', this.handleClickOutside);
+    }
+
     if (this.selection.isFakeBackgroundEnabled) {
       // if actions is broken by other selection We need to save new selection
       const currentSelection = new SelectionUtils();
@@ -282,13 +303,13 @@ export default class LinkInlineTool implements InlineTool {
    *
    * @param {KeyboardEvent} event - enter keydown event
    */
-  private enterPressed(event: KeyboardEvent): void {
+  private enterPressed(event?: KeyboardEvent): void {
     let value = this.nodes.input.value || '';
 
     if (!value.trim()) {
       this.selection.restore();
       this.unlink();
-      event.preventDefault();
+      event?.preventDefault();
       this.closeActions();
 
       return;
@@ -315,9 +336,11 @@ export default class LinkInlineTool implements InlineTool {
     /**
      * Preventing events that will be able to happen
      */
-    event.preventDefault();
-    event.stopPropagation();
-    event.stopImmediatePropagation();
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+    }
     this.selection.collapseToEnd();
     this.inlineToolbar.close();
   }
