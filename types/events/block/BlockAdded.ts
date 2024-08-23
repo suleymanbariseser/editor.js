@@ -13,6 +13,11 @@ interface BlockAddedEventDetail extends BlockMutationEventDetail {
    * Index of added block
    */
   index: number;
+
+  /**
+   * Indicates that block was added manually
+   */
+  manual?: boolean;
 }
 
 /**

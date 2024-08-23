@@ -262,6 +262,7 @@ export default class BlocksAPI extends Module {
       index,
       needToFocus,
       replace,
+      manual: true,
     });
 
     return new BlockAPI(insertedBlock);

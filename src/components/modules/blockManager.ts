@@ -277,6 +277,7 @@ export default class BlockManager extends Module {
    * @param {number} [options.index] - index where to insert new Block
    * @param {boolean} [options.needToFocus] - flag shows if needed to update current Block index
    * @param {boolean} [options.replace] - flag shows if block by passed index should be replaced with inserted one
+   * @param {boolean} [options.manual] - flag shows if block was inserted manually
    * @returns {Block}
    */
   public insert({
@@ -287,6 +288,7 @@ export default class BlockManager extends Module {
     needToFocus = true,
     replace = false,
     tunes = {},
+    manual = false,
   }: {
     id?: string;
     tool?: string;
@@ -295,6 +297,7 @@ export default class BlockManager extends Module {
     needToFocus?: boolean;
     replace?: boolean;
     tunes?: { [name: string]: BlockTuneData };
+    manual?: boolean;
   } = {}): Block {
     let newIndex = index;
 
@@ -330,6 +333,7 @@ export default class BlockManager extends Module {
      */
     this.blockDidMutated(BlockAddedMutationType, block, {
       index: newIndex,
+      manual,
     });
 
     if (needToFocus) {
